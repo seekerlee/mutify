@@ -1,0 +1,31 @@
+{
+  "manifest_version": 3,
+  "name": "Mutify",
+  "version": "0.1.0",
+  "description": "Automatically mutes Spotify Web Player advertisements.",
+  "permissions": [
+    "storage",
+    "tabs"
+  ],
+  "host_permissions": [
+    "https://open.spotify.com/*"
+  ],
+  "background": {
+    "service_worker": "src/background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://open.spotify.com/*"
+      ],
+      "js": [
+        "src/content.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_popup": "src/popup/popup.html",
+    "default_title": "Mutify"
+  }
+}
