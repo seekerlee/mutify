@@ -20,3 +20,7 @@ label {
   gap: 8px;
   align-items: center;
 }
+
+label + label {
+  margin-top: 12px;
+}

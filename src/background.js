@@ -1,5 +1,40 @@
 const desiredAdStates = new Map();
 const updatingTabs = new Set();
+let creatingOffscreenDocument;
+
+async function ensureOffscreenDocument() {
+  if (creatingOffscreenDocument) {
+    await creatingOffscreenDocument;
+    return;
+  }
+
+  const documentUrl = chrome.runtime.getURL("src/offscreen/offscreen.html");
+  const existingContexts = await chrome.runtime.getContexts({
+    contextTypes: ["OFFSCREEN_DOCUMENT"],
+    documentUrls: [documentUrl]
+  });
+
+  if (existingContexts.length > 0) {
+    return;
+  }
+
+  creatingOffscreenDocument = chrome.offscreen.createDocument({
+    url: documentUrl,
+    reasons: ["AUDIO_PLAYBACK"],
+    justification: "Play a brief cue when an advertisement is muted."
+  });
+
+  try {
+    await creatingOffscreenDocument;
+  } finally {
+    creatingOffscreenDocument = undefined;
+  }
+}
+
+async function playAdMutedCue() {
+  await ensureOffscreenDocument();
+  await chrome.runtime.sendMessage({ type: "play-ad-muted-cue" });
+}
 
 function isMutedByMutify(tab) {
   return (
@@ -22,6 +57,18 @@ async function applyDesiredAdState(tabId) {
 
       if (desiredAdState && !tab.mutedInfo?.muted) {
         await chrome.tabs.update(tabId, { muted: true });
+
+        const { cueEnabled } = await chrome.storage.local.get({
+          cueEnabled: true
+        });
+
+        if (cueEnabled) {
+          try {
+            await playAdMutedCue();
+          } catch (error) {
+            console.error("Failed to play the ad-muted cue:", error);
+          }
+        }
       } else if (!desiredAdState && isMutedByMutify(tab)) {
         await chrome.tabs.update(tabId, { muted: false });
       }

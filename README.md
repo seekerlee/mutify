@@ -10,6 +10,7 @@ state.
 ## Features
 
 - Automatically detects and mutes advertisements.
+- Optionally plays a brief, quiet two-note cue when an advertisement is muted.
 - Restores sound after an advertisement ends.
 - Never unmutes a tab that the user muted manually.
 - Can be enabled or disabled from the extension popup.
@@ -40,7 +41,8 @@ semantic advertisement signals:
 
 The background service worker mutes the Spotify tab while an advertisement is
 active. It only restores sound when Chrome reports that Mutify itself applied
-the mute.
+the mute. A short Web Audio cue is played from an offscreen extension document
+after the tab is muted.
 
 ## Development
 
@@ -60,6 +62,7 @@ contain account or listening information.
 ## Permissions
 
 - `tabs`: mute and unmute the active Spotify tab.
+- `offscreen`: play the ad-muted cue independently of the muted Spotify tab.
 - `storage`: save the enabled setting.
 - `https://open.spotify.com/*`: run advertisement detection only in Spotify Web
   Player.

@@ -3,7 +3,9 @@
   "name": "Mutify",
   "version": "0.1.0",
   "description": "Automatically mutes Spotify Web Player advertisements.",
+  "minimum_chrome_version": "116",
   "permissions": [
+    "offscreen",
     "storage",
     "tabs"
   ],
